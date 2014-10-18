@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <arpa/inet.h>
 #define QLEN            5               /* tamanho da fila de clientes  */
 #define MAX_SIZE	80		/* tamanho do buffer */
 
@@ -100,13 +101,13 @@ int main(int argc, char *argv[]) {
   for ( ; ; ) {
 	  /* waiting a new process client to connect and accept */	
     printf("%s\n","Procurando aceitar o cliente");
-    new_socket_description = accept(socket_description, (struct sockaddr *)&address_client, &size_address_client);
+    new_socket_description = accept(socket_description, (struct sockaddr *)&address_client,(socklen_t*) &size_address_client);
 	  printf("%s\n","Cliente aceitado");
     message_accept_socket_error(new_socket_description);
     
     /*ESSE FPRINTF TA FALHANDO*/
-    printf("%s\n", inet_ntoa(address_client.sin_addr.s_addr));
-    //fprintf(stdout, "Cliente %s: %u conectado.\n", inet_ntoa(address_client.sin_addr), ntohs(address_client.sin_port)); 
-	  //atende_cliente(new_socket_description, address_client);
+    printf("%s\n", inet_ntoa(address_client.sin_addr));
+    fprintf(stdout, "Cliente %s: %u conectado.\n", inet_ntoa(address_client.sin_addr), ntohs(address_client.sin_port)); 
+	  atende_cliente(new_socket_description, address_client);
   } 
 }
