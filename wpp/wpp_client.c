@@ -1,7 +1,3 @@
-/* Lab Redes II - Prof. Fernando W. Cruz */
-/* Codigo: tcpClient2.c			     */
-/* ***************************************/
-
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -9,7 +5,38 @@
 #include <netdb.h>
 #include <stdio.h>
 #include <string.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
 #define MAX_SIZE    	80
+
+void threadSend(int *socket_description)
+{
+	char    bufout[MAX_SIZE]; /* buffer de dados enviados  */
+
+	while (1) {
+		memset(&bufout, 0x0, sizeof(bufout));
+		printf("EU# Digite algo (FIM - para terminar): ");
+		fgets(bufout, MAX_SIZE, stdin);
+		send(*socket_description,&bufout,strlen(bufout),0);
+		if (strncmp(bufout, "FIM",3) == 0) 
+			break;
+	} 
+}
+
+void threadReceiver(int *socket_description)
+{
+	char	bufin[MAX_SIZE];  /* buffer p receber dados */
+
+	while (1) {
+		memset(&bufin, 0x0, sizeof(bufin));
+		recv(*socket_description, &bufin, sizeof(bufin), 0);
+		if (strncmp(bufin, "FIM", 3) == 0)
+			break;
+		printf("ELE# ");
+		printf("<- %s", bufin);
+	} /* fim while */
+}
 
 void message_args_error(int argc, char **argv){
 	if(argc<3)  {
@@ -34,43 +61,37 @@ void message_connection_error(int connection_result){
 	}
 }
 
-int main(int argc, char * argv[]) {
+void intialize_threads_comunication(int socket_description){
+	pthread_t pth_send;
+	pthread_t pth_receiver;
+	int *socket_description_pointer;
+	socket_description_pointer = &socket_description;
+	pthread_create(&pth_send,NULL,(void *) threadSend, socket_description_pointer);
+	pthread_create(&pth_receiver,NULL,(void *) threadReceiver, socket_description_pointer);
+	pthread_join(pth_send,NULL);
+	pthread_join(pth_receiver,NULL);
+}
+
+int main(int argc,char * argv[]) {
 	struct  sockaddr_in address_server; /* server descriptions */
-	int     socket_description;          	      /* socket descriptor              */
-	int     n,k;                  /* num caracteres lidos do servidor */
-	char    bufout[MAX_SIZE];     /* buffer de dados enviados  */
-	char *ip_server = argv[1];
-	char *port_server = argv[2];
+	int     socket_description; /* socket descriptor */
 
-	/* check arguments */
-	message_args_error(argc, argv);
+  	message_args_error(argc, argv);
 
-	/* Create socket */	
-	socket_description = create_socket(AF_INET, SOCK_STREAM, 0);
+	memset((char *)&address_server,0,sizeof(address_server)); /* clean address server struct */
+	address_server.sin_family      = AF_INET; /* configuration socket to internet*/
+	address_server.sin_addr.s_addr = inet_addr(argv[1]); /* ip server */
+	address_server.sin_port        = htons(atoi(argv[2])); /* port server */
 
-	/* clean variables */
-	memset((char *)&address_server,0,sizeof(address_server)); /* limpa estrutura */
-	memset((char *)&bufout,0,sizeof(bufout));     /* limpa buffer */
+  	socket_description = create_socket(AF_INET, SOCK_STREAM, 0);
 
-	/* set configurations address server */
-	address_server.sin_family      = AF_INET; /* config. socket p. internet*/
-	address_server.sin_addr.s_addr = inet_addr(ip_server);
-	address_server.sin_port        = htons(atoi(port_server));
-
-	/* Connect socket to definied server */
 	int connection_result = connect(socket_description, (struct sockaddr *)&address_server, sizeof(address_server));
 	message_connection_error(connection_result); 
 
-	while (1) {
-		printf("> ");
-		fgets(bufout, MAX_SIZE, stdin);    /* le dados do teclado */
-		printf("%s\n", bufout);
-		send(socket_description,&bufout,strlen(bufout),0); /* enviando dados ...  */
-		if (strncmp(bufout, "FIM",3) == 0) 
-			break;
-	} /* fim while */
-	printf("------- encerrando conexao com o servidor -----\n");
-	close (socket_description);
+	intialize_threads_comunication(socket_description);
+
+	printf("------- finishing connections -----\n");
+	close (socket_description); /* fecha a conexao */
 	return (0);
 } /* fim do programa */
 

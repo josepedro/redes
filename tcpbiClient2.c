@@ -64,6 +64,17 @@ void message_connection_error(int connection_result){
 	}
 }
 
+void intialize_threads_comunication(int socket_description){
+	pthread_t pth_send;
+	pthread_t pth_receiver;
+	int *socket_description_pointer;
+	socket_description_pointer = &socket_description;
+	pthread_create(&pth_send,NULL,(void *) threadSend, socket_description_pointer);
+	pthread_create(&pth_receiver,NULL,(void *) threadReceiver, socket_description_pointer);
+	pthread_join(pth_send,NULL);
+	pthread_join(pth_receiver,NULL);
+}
+
 int main(int argc,char * argv[]) {
 	struct  sockaddr_in address_server; /* server descriptions */
 	int     socket_description; /* socket descriptor */
@@ -80,17 +91,9 @@ int main(int argc,char * argv[]) {
 	int connection_result = connect(socket_description, (struct sockaddr *)&address_server, sizeof(address_server));
 	message_connection_error(connection_result); 
 
-	pthread_t pth_send;	// this is our thread identifier
-	pthread_t pth_receiver;
-	int *socket_description_pointer;
-	socket_description_pointer = &socket_description;
-	pthread_create(&pth_send,NULL,(void *) threadSend, socket_description_pointer);
-	pthread_create(&pth_receiver,NULL,(void *) threadReceiver, socket_description_pointer);
-	pthread_join(pth_send,NULL);
-	pthread_join(pth_receiver,NULL);
+	intialize_threads_comunication(socket_description);
 
-
-	printf("------- encerrando conexao -----\n");
+	printf("------- finishing connections -----\n");
 	close (socket_description); /* fecha a conexao */
 	return (0);
 } /* fim do programa */
