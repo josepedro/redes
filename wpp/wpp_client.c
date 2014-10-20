@@ -39,30 +39,27 @@ int main(int argc, char * argv[]) {
 	int     socket_description;          	      /* socket descriptor              */
 	int     n,k;                  /* num caracteres lidos do servidor */
 	char    bufout[MAX_SIZE];     /* buffer de dados enviados  */
-	char *ip_server;
-	char *port_server;
+	char *ip_server = argv[1];
+	char *port_server = argv[2];
 
 	/* check arguments */
 	message_args_error(argc, argv);
 
-	printf("%s\n", "1");
+	/* Create socket */	
+	socket_description = create_socket(AF_INET, SOCK_STREAM, 0);
 
 	/* clean variables */
 	memset((char *)&address_server,0,sizeof(address_server)); /* limpa estrutura */
 	memset((char *)&bufout,0,sizeof(bufout));     /* limpa buffer */
-	
+
 	/* set configurations address server */
 	address_server.sin_family      = AF_INET; /* config. socket p. internet*/
 	address_server.sin_addr.s_addr = inet_addr(ip_server);
 	address_server.sin_port        = htons(atoi(port_server));
 
-	/* Create socket */	
-	socket_description = create_socket(AF_INET, SOCK_STREAM, 0);
-
 	/* Connect socket to definied server */
 	int connection_result = connect(socket_description, (struct sockaddr *)&address_server, sizeof(address_server));
 	message_connection_error(connection_result); 
-	
 
 	while (1) {
 		printf("> ");
