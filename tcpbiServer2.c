@@ -7,6 +7,8 @@
 #include <netdb.h>
 #include <stdio.h>
 #include <string.h>
+#include <arpa/inet.h>
+#include <stdlib.h>
 #define QLEN            1  /* tamanho da fila de clientes  */
 #define MAX_SIZE	80	   /* tamanho do buffer */
 int main(int argc, char *argv[]) {
