@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <pthread.h>
+#include <stdlib.h>
 #define MAX_SIZE    	80
 
 int keep_alive = 1;

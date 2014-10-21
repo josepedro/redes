@@ -12,7 +12,7 @@
 
 void threadSend(int *socket_description)
 {
-	char    bufout[MAX_SIZE]; /* buffer de dados enviados  */
+	char    bufout[MAX_SIZE];
 
 	while (1) {
 		memset(&bufout, 0x0, sizeof(bufout));
@@ -35,7 +35,7 @@ void threadReceiver(int *socket_description)
 			break;
 		printf("ELE# ");
 		printf("<- %s", bufin);
-	} /* fim while */
+	}
 }
 
 void message_args_error(int argc, char **argv){
