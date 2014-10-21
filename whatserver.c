@@ -133,6 +133,7 @@ void queue(Queue * queue, void * data){
 		item->prev = queue->last->prev;
 		item->data = data;
 		queue->last->prev = item;
+		queue->last = item;
 		queue->size++;
 	}
 }
@@ -145,12 +146,21 @@ void * dequeue(Queue * queue){
 	return first->data;
 }
 
+
 void removeByData(Queue * queue, void * data){
 	Item * iterator =  queue->last;
 	while(iterator != &placeholder){
 		if(iterator->data == data){
-			iterator->prev->next = iterator->next;
-			iterator->next->prev = iterator->prev;
+			if(iterator->prev != &placeholder){
+				iterator->prev->next = iterator->next;
+			}else{
+				queue->last = iterator->next;
+			}
+			if(iterator->next != &placeholder){
+				iterator->next->prev = iterator->prev;
+			}else{
+				queue->first = iterator->prev;
+			}
 			queue->size--;
 			free(iterator);
 			break;
@@ -182,6 +192,7 @@ int broadcast(Room * room, Client * client, char * message){
 }
 
 int multicast(Room * room, Client * client, char * message){
+	printf("%s\n",((Client *)(room->clientQueue->last->data))->name);
 	Item * iterator = room->clientQueue->last;
 	char * output_buffer;
 	output_buffer = concat(client->name,": ");
@@ -192,6 +203,7 @@ int multicast(Room * room, Client * client, char * message){
 			send(reciever->s_descriptor,output_buffer,strlen(output_buffer),0);
 		}
 		iterator = iterator->next;
+		printf("%s\n",((Client *)(room->clientQueue->last->data))->name);
 	}
 	return 0;
 }
@@ -231,6 +243,10 @@ void * clientListener(Client * client, Room * room){
 	strcat(message, " saiu da sala!\n");
 	broadcast(room,&server,strdup(message));
 	removeByData(room->clientQueue,client);
+	if(room->clientQueue->size == 0){
+		removeByData(roomQueue, room);
+		free(room);
+	}
 }
 
 void * actionSelector(void *arg){
