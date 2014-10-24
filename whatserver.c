@@ -84,6 +84,13 @@ void message_accept_socket_error(int new_socket_description){
   }
 }
 
+//! Descricao da funcao
+/*!
+* \param descritor um inteiro para descrever
+* \param um constante para estrutura
+* \return um inteiro
+* \sa atende_cliente, ~atende_cliente, message_listen_error
+*/
 int atende_cliente(int descritor, struct sockaddr_in address_client)  {
   char bufin[MAX_SIZE];
   int  n;
@@ -169,6 +176,13 @@ void removeByData(Queue * queue, void * data){
 	}
 }
 
+//! Descricao da funcao
+/*!
+* \param s1 um char ponteiro para 
+* \param um constante para estrutura
+* \return um inteiro
+* \sa atende_cliente, ~atende_cliente, message_listen_error
+*/
 char * concat(char * s1, char * s2){
 	size_t len1 = strlen(s1);
 	size_t len2 = strlen(s2);
@@ -339,6 +353,14 @@ void * runLobby(void * arg){
 		pthread_join(*((pthread_t *)dequeue(&threadQueue)), NULL);
 	}
 }
+
+//! Função principal que declara os sockets do servidor e o deixa em espera de clientes para se conectar.
+/*!
+* \param argc um inteiro e possui o número de argumentos com os quais a função main() foi chamada na linha de comando.
+* \param argv um ponteiro para uma matriz de strings. Recebe respectivamente um IP e uma porta.
+* \return 	
+* \sa initQueue, message_args_error, create_socket, message_listen_error, message_accept_socket_error, queue
+*/
 
 int main(int argc, char *argv[]) {
 
